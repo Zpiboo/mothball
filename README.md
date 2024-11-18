@@ -8,8 +8,8 @@ A terminal app to use [Mothball](https://github.com/anon-noob/mothball) locally 
 `;[simulate | sim | s]` `functions` Simulates the provided functions and displays the final result.  
 `;[nocolor_simulate | ncsim | ncs | nsim | ns]` `functions` Simulates the provided functions and displays the final result without colors.  
 `;[history | h]` `functions` Simulates the provided functions and displays tick by tick results.  
-`;[clearscreen | clear | cls | c]` Clear the screen (not the simulation history).  
-`;[exit | x]` Exit the app.  
+`;[clearscreen | clear | cls | c]` Clears the screen (not the simulation history).  
+`;[exit | x]` Exits the app.  
 
 ### Non-Simulation Functions
 
