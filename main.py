@@ -1,6 +1,6 @@
 from cogs.movement.player import Player
 from cogs.movement.context import Context
-from term.commands import ShellCommands
+from term.commands import TermCommands
 from term.utils import parse_multiline
 try:
   import readline
@@ -25,4 +25,4 @@ while running:
     print()
     cmd, sim_text = 'exit', ''
 
-  ShellCommands.execute_command(cmd, sim_text)
+  TermCommands.execute_command(cmd, sim_text)
