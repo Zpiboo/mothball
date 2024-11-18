@@ -1,23 +1,3 @@
-# import pynput.keyboard as kb
-import keyboard as kb
-
-# class KeyController:
-#   shift_pressed: bool = False
-
-#   @classmethod
-#   def update_key_state(cls, key, is_pressed):
-#     if key in (kb.Key.shift, kb.Key.shift_r):
-#       cls.shift_pressed = is_pressed
-
-# def on_press(key):
-#   KeyController.update_key_state(key, True)
-# def on_release(key):
-#   KeyController.update_key_state(key, False)
-
-# with kb.Listener(on_press=on_press, on_release=on_release) as listener:
-#   listener.join()
-
-
 def parse_multiline(string: str) -> str:
   """
   Function that allows the user to input line breaks.

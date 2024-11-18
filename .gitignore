@@ -2,6 +2,3 @@ params.json
 venv/
 __pycachhe__/
 .replit
-replit.nix
-pyproject.toml
-uv.lock
