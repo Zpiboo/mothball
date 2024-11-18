@@ -1911,7 +1911,7 @@ def language(ctx: Context, string: str = "english"):
         add_to_output_as_normal_string(ctx, f"This is already in english you {random.choice(insults)}.\n")
 
 
-@command(aliases=['t'])
+@command()
 def then(ctx: Context, index: int = -1):
     """
     Continue a simulation from earlier by copying the player object at a given index in the history.
@@ -1921,4 +1921,3 @@ def then(ctx: Context, index: int = -1):
         ctx.player = deepcopy(ctx.sim_history[index])
     except IndexError:
         pass
-        # add_to_output_as_normal_string(ctx, f'then: index error, {ctx.sim_history = }')
