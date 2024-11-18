@@ -1,25 +1,28 @@
 from cogs.movement.player import Player
 from cogs.movement.context import Context
-from cogs.movement.parsers import execute_string
+from term.commands import ShellCommands
+from term.utils import parse_multiline
 try:
   import readline
-except:
-  pass
+except ModuleNotFoundError:
+  print('WARNING: readline module not found.')
+
+
+player = Player()
+envs = []
+is_dev = True
+ctx = Context(player, envs, is_dev)
 
 running = True
 while running:
-  player = Player()
-  envs = []
-  is_dev = True
+  try:
+    cmd, sim_text = (
+      parse_multiline(input(';')).strip()
+        .split(' ', 1)
+      + ['']*2
+    )[:2]
+  except KeyboardInterrupt:
+    print()
+    cmd, sim_text = 'exit', ''
 
-  ctx = Context(player, envs, is_dev)
-
-  sim_input = input(';s ')
-  print()
-
-  execute_string(ctx, sim_input)
-  print(ctx.pre_out)
-  print(ctx.default_string())
-  print(ctx.out)
-
-  print()
+  ShellCommands.execute_command(cmd, sim_text)

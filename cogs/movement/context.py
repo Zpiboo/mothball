@@ -1,13 +1,16 @@
 from copy import deepcopy
 from numpy import format_float_positional
+from term.utils import colorize_number
 
 class Context():
-    def __init__(self, player, envs, is_dev):
+    def __init__(self, player, envs, is_dev, sim_history=[]):
 
         self.player = player
         self.cached = {}
         self.envs = envs
         self.is_dev = is_dev
+
+        self.sim_history = sim_history
 
         self.macro = None
         self.out = ''
@@ -25,7 +28,7 @@ class Context():
         self.adding_pre_output = False # marker bool for formatting pre-outputs (top priority outputs)
     
     def child(self):
-        return Context(deepcopy(self.player), self.envs, self.is_dev)
+        return Context(deepcopy(self.player), self.envs, self.is_dev, self.sim_history)
 
     def format(self, num, sign = False):
         if num is None:
@@ -48,9 +51,11 @@ class Context():
     def default_string(self):
         xstr = self.format(self.player.x + self.player.modx)
         zstr = self.format(self.player.z + self.player.modz)
+        vxstr = self.format(self.player.vx)
+        vzstr = self.format(self.player.vz)
         max_length = max(len(xstr), len(zstr))
-        out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {self.format(self.player.vx)}\n'
-        out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {self.format(self.player.vz)}\n'
+        out =  f'[36mX: [0m{colorize_number(xstr.ljust(max_length + 5, " "))}[36mVx: [0m{colorize_number(vxstr)}\n'
+        out += f'[36mZ: [0m{colorize_number(zstr.ljust(max_length + 5, " "))}[36mVz: {colorize_number(vzstr)}[0m\n'
         return out
 
     def history_string(self):
@@ -58,7 +63,7 @@ class Context():
         for tick in self.history:
             history += (f'x/z:({self.format(tick[0]+self.player.modx)}, {self.format(tick[1]+self.player.modz)})'.ljust(15 + 2 * self.print_precision))
             history += f'vx/vz:({self.format(tick[2])}, {self.format(tick[3])})\n'
-        return '```' + history + '```'
+        return history
 
     def macro_csv(self):
 

@@ -3,7 +3,7 @@ from inspect import signature
 from functools import wraps
 from types import MethodType
 from inspect import cleandoc
-from copy import copy
+from copy import copy, deepcopy
 from numpy import float32, int32, uint64
 from evalidate import Expr, EvalException
 import cogs.movement.parsers as parsers
@@ -11,7 +11,8 @@ from cogs.movement.utils import Function, SimError, fastmath_sin_table
 from cogs.movement.player import Player
 import re
 import random
-from cogs.movement.context import Context # for type hinting
+from cogs.movement.context import Context
+from term.utils import colorize_number
 
 f64 = float
 f32 = float32
@@ -131,12 +132,6 @@ def get_local_env(ctx: Context):
         local_env.update(env)
     return local_env 
 
-def colorize_number(number, remove_negative = False):
-    if float(number) < 0: # negative (red)
-        return f'[0m{"-" if not remove_negative else ""}[31m{number[1:]}'
-    else: # positive (green)
-        return f'[32m{number}'
-
 def add_to_pre_output_as_normal_string(ctx: Context, string = ''):
     """
     Handles adding to the pre outout (`ctx.pre_out`) which is anything that should be displayed first on top before standard output.
@@ -147,6 +142,7 @@ def add_to_pre_output_as_normal_string(ctx: Context, string = ''):
     # For noncolored pre output as backup
     ctx.uncolored_pre_out += f"{string}\n"
 
+SUFFIX = "[0m"
 def add_to_pre_output(ctx: Context, label = None, string = '', label_color = "cyan"):
     label_colors = {
         "gray": 30,
@@ -162,16 +158,16 @@ def add_to_pre_output(ctx: Context, label = None, string = '', label_color = "cy
 
     output = ""
     if ctx.adding_pre_output == False:
-        output += "```ansi\n"
+        # output += "```ansi\n"
         ctx.adding_pre_output = True
     
-    elif ctx.adding_pre_output == True and ctx.pre_out.endswith("\n```"):
-        ctx.pre_out = ctx.pre_out.removesuffix("```")
+    elif ctx.adding_pre_output == True and ctx.pre_out.endswith("\n" + SUFFIX):
+        ctx.pre_out = ctx.pre_out.removesuffix(SUFFIX)
 
     string = string.split("/")
     output += f"[{label_colors[label_color]}m{label}[0m: {'[0m/'.join([colorize_number(x) for x in string])}"
         
-    ctx.pre_out += output + '\n```'
+    ctx.pre_out += output + "\n" + SUFFIX
 
 
 def add_to_output(ctx: Context, label = None, string = '', label_color = "cyan"):
@@ -194,11 +190,11 @@ def add_to_output(ctx: Context, label = None, string = '', label_color = "cyan")
 
     output = ""
     if ctx.adding_output == False:
-        output += "```ansi\n"
+        # output += "```ansi\n"
         ctx.adding_output = True
  
-    elif ctx.adding_output == True and ctx.out.endswith("\n```"):
-        ctx.out = ctx.out.removesuffix("```")
+    elif ctx.adding_output == True and ctx.out.endswith("\n" + SUFFIX):
+        ctx.out = ctx.out.removesuffix(SUFFIX)
 
     nums_and_signs = string.split(" ")
     output += f"[{label_colors[label_color]}m{label}[0m: "
@@ -210,7 +206,7 @@ def add_to_output(ctx: Context, label = None, string = '', label_color = "cyan")
         num1, sign, num2 = nums_and_signs
         output += f"{colorize_number(num1)} [0m{sign} {colorize_number('-' + num2 if sign == '-' else num2, remove_negative=True)}"
 
-    ctx.out += output + "\n```"
+    ctx.out += output + "\n" + SUFFIX
 
     # For noncolored output as backup
     ctx.uncolored_out += f"{label}: {string}\n"
@@ -1853,18 +1849,18 @@ def help(ctx: Context, cmd_name = 'help'):
     newln = '\n'
 
     help_output = f'Help with {cmd_name}:'
-    help_output += '' if cmd.__doc__ is None else f'\n```{cleandoc(cmd.__doc__)}```'
-    help_output += f'```\nAliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}'
-    help_output += f'\nArgs:\n{newln.join(params)}```\n'
+    help_output += '' if cmd.__doc__ is None else f'\n{cleandoc(cmd.__doc__)}\n'
+    help_output += f'\nAliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}'
+    help_output += f'\nArgs:\n{newln.join(params)}\n'
 
     add_to_output_as_normal_string(ctx, string=help_output)
 
 @command(aliases=['print'])
 def println(ctx: Context, string: str = ""):
     """
-    Print any basic text to your heart's desire. To print commas, place a \ before the comma.
+    Print any basic text to your heart's desire. To print commas, place a \\ before the comma.
 
-    Example: print(It's been 9 hours without HPK\, I can’t stop shaking and I’m having severe mental breakdowns. I woke up today trying to log onto HPK but the site was down\, I had a major panic attack but managed to calm down after a few hours. I couldn’t go to school today\, I am so worried that I even took my dad's gun from the shed\, thinking of killing myself. I am nothing without HPK\, it is my life\, it is my destiny\, without HPK\, I wouldn't be able to do anything. 
+    Example: print(It's been 9 hours without HPK\\, I can’t stop shaking and I’m having severe mental breakdowns. I woke up today trying to log onto HPK but the site was down\\, I had a major panic attack but managed to calm down after a few hours. I couldn’t go to school today\\, I am so worried that I even took my dad's gun from the shed\\, thinking of killing myself. I am nothing without HPK\\, it is my life\\, it is my destiny\\, without HPK\\, I wouldn't be able to do anything.)
     
     Pings and links will not print.
     """
@@ -1911,5 +1907,18 @@ def language(ctx: Context, string: str = "english"):
     if string.lower() != "english":
         raise SimError(f"Sorry but `{string}` not supported, we only have: \n`english`\n")
     else:
-        insults = ["idiot sandwich", "buffoon", "illiterate freak", "succubus", "homosapien of the low IQ variant", "bitch", "idot", "uncultured swine", "smelly bedwars player", "smelly league player, go take a shower and touch grass", "smelly valorant player, go take a shower and touch grass", "lonely virgin gamer, consider this: 🚿","nincompoop","pillock","🤢 🎮", "fat fuck", "despicable being","loveless loser","muppet","submissive and breedable human", "glutenous glob", "disgusting douche", "karen", "normie","literally are the definition of 1984", "wicket witch", "charlatan", "normie \*laughs in poor gamer e-girl\*", "sexual spring breaking degenerate. Get out of my server, i own this place.","sussy baka uWu \*nudges and soft vores you\*\n\n\n\n\nWC","lil husbando, come give mommy a huggy", "lazy linguistic lacking logic loveless ludicrous livid lamentable leeching loser", "tier 20 twitch troller", "gold wings enthusiast", "'\n\n\n\n\nwc", "hoe, i bet u watch tik tok"]
-        add_to_output_as_normal_string(f"This is already in english you {random.choice(insults)}.\n")
+        insults = ["idiot sandwich", "buffoon", "illiterate freak", "succubus", "homosapien of the low IQ variant", "bitch", "idot", "uncultured swine", "smelly bedwars player", "smelly league player, go take a shower and touch grass", "smelly valorant player, go take a shower and touch grass", "lonely virgin gamer, consider this: 🚿","nincompoop","pillock","🤢 🎮", "fat fuck", "despicable being","loveless loser","muppet","submissive and breedable human", "glutenous glob", "disgusting douche", "karen", "normie","literally are the definition of 1984", "wicket witch", "charlatan", "normie \\*laughs in poor gamer e-girl\\*", "sexual spring breaking degenerate. Get out of my server, i own this place.","sussy baka uWu \\*nudges and soft vores you\\*\n\n\n\n\nWC","lil husbando, come give mommy a huggy", "lazy linguistic lacking logic loveless ludicrous livid lamentable leeching loser", "tier 20 twitch troller", "gold wings enthusiast", "'\n\n\n\n\nwc", "hoe, i bet u watch tik tok"]
+        add_to_output_as_normal_string(ctx, f"This is already in english you {random.choice(insults)}.\n")
+
+
+@command(aliases=['t'])
+def then(ctx: Context, index: int = -1):
+    """
+    Continue a simulation from earlier by copying the player object at a given index in the history.
+    Example: then then(-3) then(0)
+    """
+    try:
+        ctx.player = deepcopy(ctx.sim_history[index])
+    except IndexError:
+        pass
+        # add_to_output_as_normal_string(ctx, f'then: index error, {ctx.sim_history = }')
