@@ -1,11 +1,15 @@
-# Mothball
-A Discord bot for simulating Minecraft movement to high accuracy, used for parkour among other minecraft fields of research involving movement.
+> [!WARNING]
+> I can't code well (RUN AWAY WHILE YOU STILL CAN, YOU FOOL)
+
+# Mothball Term
+A terminal app to use [Mothball](https://github.com/anon-noob/mothball) locally (I think there's already a way to do this, but I'm bored and I wanted to code something on my phone).
 
 ## Commands
-`;[simulate | sim | s]`​`functions` Simulates the provided functions and displays the final result.  
-`;[history | h]`​`functions` Simulates the provided functions and displays tick by tick results.  
-`;[then | t]`​`functions` Continues simulation from the reply and displays the final result.  
-`;[thenh | th]`​`functions` Continues simulation from the reply and displays tick by tick results.
+`;[simulate | sim | s]` `functions` Simulates the provided functions and displays the final result.  
+`;[nocolor_simulate | ncsim | ncs | nsim | ns]` `functions` Simulates the provided functions and displays the final result without colors.  
+`;[history | h]` `functions` Simulates the provided functions and displays tick by tick results.  
+`;[clearscreen | clear | cls | c]` Clear the screen (not the simulation history).  
+`;[exit | x]` Exit the app.  
 
 ### Non-Simulation Functions
 
@@ -38,6 +42,7 @@ Exceptions include the strafe sprintjump variants, which are prefixed with `[l, 
 | facing       | face, f   | angle     | Sets the player's default facing                           |
 | offsetfacing | oface, of | angle     | Offsets the player's facing once                           |
 | turn         | t         | angle     | Turns the player's default facing                          |
+| then         |           | index     | Fetches the player's state at the end of the specified simulation, with its index in the history                                             |
 #### Simulation Parameter Functions:
 | Function     | Alias(es) | Arguments | Result                                                     |
 |--------------|-----------|-----------|------------------------------------------------------------|
